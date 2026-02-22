@@ -132,6 +132,9 @@
     </div>
 
     <script>
+        // Configuration - Vercel API endpoint
+        const API_ENDPOINT = 'https://blog-writer-eta.vercel.app/api/blog';
+        
         function generate() {
             const title = document.getElementById('title').value;
             const category = document.getElementById('category').value;
@@ -142,55 +145,42 @@
             
             if (!title) { alert('Please enter a title!'); return; }
 
-            const styles = {
-                informative: 'Focus on facts, data, and balanced reporting. Provide actionable insights.',
-                opinion: 'Share your unique perspective. Be bold but reasonable.',
-                tutorial: 'Step-by-step guide. Make it easy to follow for beginners.',
-                review: 'Be objective but opinionated. Cover pros and cons.',
-                news: 'Who, what, when, where, why. Keep it factual and timely.'
-            };
+            // Show loading
+            document.getElementById('articleContent').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Generating article...</p>';
+            document.getElementById('output').classList.add('show');
 
-            const categoryTitles = {
-                tech: 'Technology',
-                crypto: 'Crypto & Web3', 
-                finance: 'Finance',
-                lifestyle: 'Lifestyle',
-                business: 'Business'
-            };
+            fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, category, keywords, description, style, length })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
+                    displayArticle(data.result, title, category, style, length);
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to generate'));
+                    document.getElementById('output').classList.remove('show');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Connection error');
+                document.getElementById('output').classList.remove('show');
+            });
+        }
 
-            const wordCounts = { short: 500, medium: 1000, long: 2000 };
-            
-            let article = `# ${title}\n\n`;
-
-            article += `*A ${categoryTitles[category]} Article*\n\n`;
-
-            article += `## Introduction\n\n`;
-            article += `${title} is an important topic in today's ${categoryTitles[category].toLowerCase()} landscape. ${description || 'In this article, we will explore the key aspects and provide valuable insights.'}\n\n`;
-
-            article += `## Key Points\n\n`;
-            article += `First and foremost, understanding ${keywords.split(',')[0] || 'the topic'} is crucial. ${styles[style]}\n\n`;
-            article += `The ${keywords.split(',')[0] || 'concept'} has been gaining significant attention recently. Industry experts suggest that this trend will continue to grow in the coming years.\n\n`;
-
-            article += `## Analysis\n\n`;
-            article += `When we look at the data, several factors emerge. ${description || 'This analysis provides a comprehensive overview of the current state and future projections.'}\n\n`;
-
-            article += `## Conclusion\n\n`;
-            article += `In conclusion, ${title.toLowerCase()} represents a significant opportunity. ${description || 'Readers are encouraged to do their own research and make informed decisions.'}\n\n`;
-
-            article += `---\n\n`;
-            article += `*This article was generated using Blog Writer Pro. Connect AI API for intelligent content generation.*\n`;
-            article += `*Target length: ~${wordCounts[length]} words | Style: ${style}*`;
-
-            const words = article.split(/\s+/).length;
+        function displayArticle(article, title, category, style, length) {
+            const categoryTitles = { tech: 'Technology', crypto: 'Crypto', finance: 'Finance', lifestyle: 'Lifestyle', business: 'Business' };
             
             document.getElementById('articleContent').innerHTML = `
                 <h2>${title}</h2>
                 <p><em>Category: ${categoryTitles[category]} | Style: ${style} | Length: ${length}</em></p>
-                <p>${article.replace(/#/g, '').replace(/\*/g, '')}</p>
+                <div style="white-space:pre-wrap;line-height:1.8">${article}</div>
             `;
             
+            const words = article.split(/\s+/).length;
             document.getElementById('wordCount').textContent = words + ' words';
-            document.getElementById('output').classList.add('show');
         }
 
         function copyArticle() {
