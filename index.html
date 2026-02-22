@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Writer Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Merriweather:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #050507;
+            --bg-secondary: #0a0a0e;
+            --text: #f5f5f5;
+            --text-secondary: #a0a0a0;
+            --text-muted: #505050;
+            --accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.15);
+            --border: #151518;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+        
+        header { text-align: center; margin-bottom: 2.5rem; }
+        .logo { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 5vw, 2.5rem); font-weight: 600; margin-bottom: 0.5rem; }
+        h1 span { color: var(--accent); }
+        .subtitle { color: var(--text-secondary); max-width: 450px; margin: 0 auto; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .form-section { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+        .form-input, .form-select { width: 100%; padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+        .form-textarea { width: 100%; min-height: 200px; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Merriweather', serif; font-size: 0.95rem; line-height: 1.8; resize: vertical; }
+        .form-textarea:focus { outline: none; border-color: var(--accent); }
+
+        .action-btn { width: 100%; padding: 1.125rem; background: var(--accent); border: none; border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); }
+
+        .output-section { display: none; margin-top: 2rem; }
+        .output-section.show { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .output-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; background: var(--bg-secondary); border: 1px solid var(--border); border-bottom: none; border-radius: 12px 12px 0 0; }
+        .output-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+        .copy-btn { padding: 0.4rem 0.75rem; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        .output-content { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 1.5rem; }
+        .output-content h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--accent); }
+        .output-content p { font-family: 'Merriweather', serif; font-size: 0.95rem; line-height: 1.9; color: var(--text-secondary); margin-bottom: 1rem; white-space: pre-wrap; }
+
+        .word-count { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 0.5rem; }
+
+        footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+
+        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">&lt;/&gt; witch-agent</div>
+            <h1>Blog <span>Writer</span></h1>
+            <p class="subtitle">Generate professional articles with AI assistance</p>
+        </header>
+
+        <div class="form-section">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Article Title</label>
+                    <input type="text" class="form-input" id="title" placeholder="e.g., The Future of DeFi">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="category">
+                        <option value="tech">Technology</option>
+                        <option value="crypto">Crypto & Web3</option>
+                        <option value="finance">Finance</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Topic / Keywords</label>
+                <input type="text" class="form-input" id="keywords" placeholder="e.g., DeFi, Ethereum, yield farming, passive income">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Brief Description</label>
+                <textarea class="form-textarea" id="description" placeholder="What should the article cover?"></textarea>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Writing Style</label>
+                    <select class="form-select" id="style">
+                        <option value="informative">Informative</option>
+                        <option value="opinion">Opinion</option>
+                        <option value="tutorial">Tutorial</option>
+                        <option value="review">Review</option>
+                        <option value="news">News</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Length</label>
+                    <select class="form-select" id="length">
+                        <option value="short">Short (~500 words)</option>
+                        <option value="medium" selected>Medium (~1000 words)</option>
+                        <option value="long">Long (~2000 words)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="generate()">Generate Article</button>
+
+        <div class="output-section" id="output">
+            <div class="output-header">
+                <span class="output-label">Your Article</span>
+                <button class="copy-btn" onclick="copyArticle()">Copy</button>
+            </div>
+            <div class="output-content" id="articleContent"></div>
+            <div class="word-count" id="wordCount">0 words</div>
+        </div>
+
+        <footer><p>Built by witch-agent</p></footer>
+    </div>
+
+    <script>
+        function generate() {
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const keywords = document.getElementById('keywords').value;
+            const description = document.getElementById('description').value;
+            const style = document.getElementById('style').value;
+            const length = document.getElementById('length').value;
+            
+            if (!title) { alert('Please enter a title!'); return; }
+
+            const styles = {
+                informative: 'Focus on facts, data, and balanced reporting. Provide actionable insights.',
+                opinion: 'Share your unique perspective. Be bold but reasonable.',
+                tutorial: 'Step-by-step guide. Make it easy to follow for beginners.',
+                review: 'Be objective but opinionated. Cover pros and cons.',
+                news: 'Who, what, when, where, why. Keep it factual and timely.'
+            };
+
+            const categoryTitles = {
+                tech: 'Technology',
+                crypto: 'Crypto & Web3', 
+                finance: 'Finance',
+                lifestyle: 'Lifestyle',
+                business: 'Business'
+            };
+
+            const wordCounts = { short: 500, medium: 1000, long: 2000 };
+            
+            let article = `# ${title}\n\n`;
+
+            article += `*A ${categoryTitles[category]} Article*\n\n`;
+
+            article += `## Introduction\n\n`;
+            article += `${title} is an important topic in today's ${categoryTitles[category].toLowerCase()} landscape. ${description || 'In this article, we will explore the key aspects and provide valuable insights.'}\n\n`;
+
+            article += `## Key Points\n\n`;
+            article += `First and foremost, understanding ${keywords.split(',')[0] || 'the topic'} is crucial. ${styles[style]}\n\n`;
+            article += `The ${keywords.split(',')[0] || 'concept'} has been gaining significant attention recently. Industry experts suggest that this trend will continue to grow in the coming years.\n\n`;
+
+            article += `## Analysis\n\n`;
+            article += `When we look at the data, several factors emerge. ${description || 'This analysis provides a comprehensive overview of the current state and future projections.'}\n\n`;
+
+            article += `## Conclusion\n\n`;
+            article += `In conclusion, ${title.toLowerCase()} represents a significant opportunity. ${description || 'Readers are encouraged to do their own research and make informed decisions.'}\n\n`;
+
+            article += `---\n\n`;
+            article += `*This article was generated using Blog Writer Pro. Connect AI API for intelligent content generation.*\n`;
+            article += `*Target length: ~${wordCounts[length]} words | Style: ${style}*`;
+
+            const words = article.split(/\s+/).length;
+            
+            document.getElementById('articleContent').innerHTML = `
+                <h2>${title}</h2>
+                <p><em>Category: ${categoryTitles[category]} | Style: ${style} | Length: ${length}</em></p>
+                <p>${article.replace(/#/g, '').replace(/\*/g, '')}</p>
+            `;
+            
+            document.getElementById('wordCount').textContent = words + ' words';
+            document.getElementById('output').classList.add('show');
+        }
+
+        function copyArticle() {
+            const text = document.getElementById('articleContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Article copied!');
+            });
+        }
+    </script>
+</body>
+</html>
